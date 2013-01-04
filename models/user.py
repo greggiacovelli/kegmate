@@ -7,6 +7,7 @@ class User(db.Model):
 
 class Persona(db.Expando):
 
+   id = db.StringProperty(required=True)
    type = db.StringProperty(required=True)
    auth_token = db.StringProperty()
 

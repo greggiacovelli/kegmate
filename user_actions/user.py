@@ -1,4 +1,5 @@
 import webapp2
+import webob.exc
 from webapp2_extras import json
 from utils.decorators import require
 from models import user
@@ -14,32 +15,61 @@ class UserInfo(webapp2.RequestHandler):
         self.response.write(
             json.json.dumps(
                 {'meta': 200,
-                 'user': convert_user(new_user)
+                 'user': convert_model(new_user)
                 }
             ))
 
     def get(self, user_id):
         a_user = user.User.get_by_key_name(user_id)
+        if not a_user:
+           raise webob.exc.HTTPNotFound()
+
         self.response.write(
             json.json.dumps(
                 {'meta': 200,
-                 'user': convert_user(a_user)
+                 'user': convert_model(a_user)
                 }
             ))
 
 class PersonaInfo(webapp2.RequestHandler):
 
     def get(self, user_id):
-        self.response.write('YAY')
+        a_user = user.User.get_by_key_name(user_id)
+        if not a_user:
+           raise webob.exc.HTTPNotFound()
+        personas = user.Persona.all().ancestor(a_user).run()
+        if not personas:
+           raise webob.exc.HTTPNotFound()
+        personas = [convert_model(persona) for persona in personas]
+        self.response.write(
+            json.json.dumps(
+               {'meta': 200,
+                'personas' : personas
+               }
+            ))
 
+    @require(query=['account_type', 'account_id'])
+    def post(self, user_id):
+        a_user = user.User.get_by_key_name(user_id)
+        if not a_user:
+           print 'OMG'
+           return # raise webob.exc.HTTPNotFound()
+        type = self.request.GET.get('account_type')
+        id = self.request.GET.get('account_id')
+        persona = user.Persona(key_name='%s-%s' % (a_user.key(), type), id=id, type=type, parent=a_user)
+        persona.put()
+        if not type in a_user.personas:
+           a_user.personas.append(type)
+           a_user.put()
+        return webapp2.redirect_to('personas', user_id=user_id)
 
-def convert_user(user, include_key=False):
-    user_dict = {}
-    if user:
-        props = user.properties()
+def convert_model(model, include_key=False):
+    model_dict = {}
+    if model:
+        props = model.properties()
         for prop in props.keys():
-            user_dict[prop] = getattr(user, prop)
-        if user_dict and include_key:
-            user_dict['id'] = user.key()
-    return user_dict
+            model_dict[prop] = getattr(model, prop)
+        if model_dict and include_key:
+            model_dict['id'] = model.key()
+    return model_dict
 
