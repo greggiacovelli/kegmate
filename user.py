@@ -15,11 +15,13 @@
 # limitations under the License.
 #
 import webapp2
-from user_actions import register
+from user_actions import user
 
 class Catch(webapp2.RequestHandler):
    def get(this):
       this.response.write('Wild: uri %s\n' % this.request.path_info)
 
-app = webapp2.WSGIApplication([(r'/user/register', register.RegisterUser), (r'/.*', Catch)],
+app = webapp2.WSGIApplication([webapp2.Route(r'/user/<user_id>/', user.UserInfo), 
+                               webapp2.Route(r'/user/<user_id>/personas', user.PersonaInfo),
+                               (r'/.*', Catch)],
                               debug=True)
