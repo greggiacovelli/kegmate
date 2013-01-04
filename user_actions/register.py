@@ -1,6 +1,6 @@
 import webapp2
-from utils import require
-import models
+from utils.decorators import require
+
 class RegisterUser(webapp2.RequestHandler):
 
     @require(query=['user_id', 'name'])
