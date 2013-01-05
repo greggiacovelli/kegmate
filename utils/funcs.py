@@ -1,6 +1,12 @@
 import datetime
 from google.appengine.ext import db
 
+def meta_ok():
+    return {
+           'code': 200,
+           'message': 'Coolio'
+           }
+
 def convert_model(model, include_key=False):
     model_dict = {}
     if model:

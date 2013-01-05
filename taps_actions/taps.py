@@ -19,7 +19,7 @@ class TapInfo(webapp2.RequestHandler):
 
     def get(self, tap_id, **kwargs):
         self.response.write(json.json.dumps(
-            {'meta' : 200,
+            {'meta' : funcs.meta_ok(),
              'tap' : funcs.convert_model(self.get_tap_or_bust(tap_id))
             }
          ))
@@ -48,7 +48,7 @@ class TapList(webapp2.RequestHandler):
           data['taps'] = [webapp2.uri_for('tap', tap_id=tap.name()) for tap in all_taps]
        else:
           data['taps'] = [funcs.convert_model(tap) for tap in all_taps]
-       data['meta'] = 200
+       data['meta'] = funcs.meta_ok()
        self.response.write(json.json.dumps(data))
 
     @require(params=['name', 'latitude', 'longitude'])

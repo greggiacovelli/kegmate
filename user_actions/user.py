@@ -15,7 +15,7 @@ class UserInfo(webapp2.RequestHandler):
         
         self.response.write(
             json.json.dumps(
-                {'meta': 200,
+                {'meta': funcs.meta_ok(),
                  'user': funcs.convert_model(new_user)
                 }
             ))
@@ -27,7 +27,7 @@ class UserInfo(webapp2.RequestHandler):
 
         self.response.write(
             json.json.dumps(
-                {'meta': 200,
+                {'meta': funcs.meta_ok(),
                  'user': funcs.convert_model(a_user)
                 }
             ))
@@ -44,7 +44,7 @@ class PersonaInfo(webapp2.RequestHandler):
         personas = [funcs.convert_model(persona) for persona in personas]
         self.response.write(
             json.json.dumps(
-               {'meta': 200,
+               {'meta': funcs.meta_ok(),
                 'personas' : personas
                }
             ))
