@@ -15,8 +15,11 @@ handlers:
 - url: /beer/.*
   script: beer.app
 
+- url: /taps/.*
+  script: taps.app
+
 - url: /tap/.*
-  script: tap.app
+  script: taps.app
 
 libraries:
 - name: webapp2

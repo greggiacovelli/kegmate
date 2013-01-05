@@ -7,33 +7,50 @@ class KegMateException(webob.exc.WSGIHTTPException):
 
      def __init__(self, **kw):
         webob.exc.WSGIHTTPException.__init__(self, **kw)
-        self.make_body()
+        self._make_body()
 
-     def make_body(self):
+     def update_payload(self, payload):
+        pass
+
+     def _make_body(self):
        self.content_type='text/plain'
        payload = {
-           'code': self.meta_code,
-           'message': self.message,
-           }
-
-       if self.detail:
-          payload['detail'] = self.detail
-       
+           'code': self.code,
+           'message': self.message
+       }
+       self.update_payload(payload)
        self.body = json.json.dumps({'meta': payload})
 
+       
 
 class MissingParamException(KegMateException):
 
-   meta_code = 400
-   message = 'Missing Parameters needed for request'
+    meta_code = 400
+    message = 'Missing Parameters needed for request'
 
-   def __init__(self, message=None, query_params=None, body_params=None):
-      if message:
-           self.message = message
+    def __init__(self, message=None, query_params=None, body_params=None):
+        if message:
+            self.message = message
+        self.missing_query = query_params
+        self.missing_body = body_params
+        KegMateException.__init__(self)
       
-      if query_params or body_params:
-           self.detail = 'Missing Query Params: %s, Missing Body Params: %s' % (query_params, body_params)
+    def update_payload(self, payload):
+        if self.missing_query:
+            payload['missing_query'] = self.missing_query
+        if self.missing_body:
+            payload['missing_body'] = self.missing_body
 
-      KegMateException.__init__(self)
-      
-      
+class Conflict(KegMateException):
+
+    meta_code = 409
+    message = 'There was a conflict with another resource'
+
+    def __init__(self, name, location, *args, **kwargs):
+       self.__name = name
+       self.__location = location
+       KegMateException.__init__(self, *args, **kwargs)
+
+    def update_payload(self, payload):
+       payload['name'] = self.__name
+       payload['location'] = self.__location

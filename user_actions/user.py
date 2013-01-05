@@ -2,6 +2,7 @@ import webapp2
 import webob.exc
 from webapp2_extras import json
 from utils.decorators import require
+from utils import funcs
 from models import user
 class UserInfo(webapp2.RequestHandler):
 
@@ -15,7 +16,7 @@ class UserInfo(webapp2.RequestHandler):
         self.response.write(
             json.json.dumps(
                 {'meta': 200,
-                 'user': convert_model(new_user)
+                 'user': funcs.convert_model(new_user)
                 }
             ))
 
@@ -27,7 +28,7 @@ class UserInfo(webapp2.RequestHandler):
         self.response.write(
             json.json.dumps(
                 {'meta': 200,
-                 'user': convert_model(a_user)
+                 'user': funcs.convert_model(a_user)
                 }
             ))
 
@@ -40,7 +41,7 @@ class PersonaInfo(webapp2.RequestHandler):
         personas = user.Persona.all().ancestor(a_user).run()
         if not personas:
            raise webob.exc.HTTPNotFound()
-        personas = [convert_model(persona) for persona in personas]
+        personas = [funcs.convert_model(persona) for persona in personas]
         self.response.write(
             json.json.dumps(
                {'meta': 200,
@@ -62,14 +63,4 @@ class PersonaInfo(webapp2.RequestHandler):
            a_user.personas.append(type)
            a_user.put()
         return webapp2.redirect_to('personas', user_id=user_id)
-
-def convert_model(model, include_key=False):
-    model_dict = {}
-    if model:
-        props = model.properties()
-        for prop in props.keys():
-            model_dict[prop] = getattr(model, prop)
-        if model_dict and include_key:
-            model_dict['id'] = model.key()
-    return model_dict
 
