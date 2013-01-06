@@ -25,19 +25,22 @@ class TapInfo(webapp2.RequestHandler):
             }
          ))
 
-    @db.transactional
     def post(self, tap_id):
         tap = self.get_tap_or_bust(tap_id)
-        tap.geo_location.latitude = self.request.params.get('latitude', tap.geo_location.latitude)
-        tap.geo_location.longitude = self.request.params.get('longitude', tap.geo_location.longitude)
+        tap.geo_location.lat = self.request.params.get('latitude', tap.geo_location.lat)
+        tap.geo_location.lon = self.request.params.get('longitude', tap.geo_location.lon)
         tap.photo_url = self.request.params.get('photo_url', tap.photo_url)
         keg_id = self.request.params.get('keg')
         if keg_id:
-            keg = keg.get_by_key_name(keg_id)
+            keg = kegs.Keg.get_by_key_name(keg_id)
             if not keg:
-                raise InvalidParameterException(parameter='keg', value=keg_id, description='The given keg could not be located')
+                raise InvalidParameterException(param='keg', value=keg_id, description='The given keg could not be located')
             if keg.empty():
-                raise InvalidParameterException(parameter='keg', value=keg_id, description='The given keg is reported empty')
+                raise InvalidParameterException(param='keg', value=keg_id, description='The given keg is reported empty')
+            query = Tap.all(keys_only=True).filter('keg =', keg)
+            keys = [key for key in query]
+            if keys and not tap.key() in keys:
+                raise InvalidParameterException(param='keg', value=keg_id, description='The given keg is already associated to another tap')
             keg.put()
             tap.keg = keg.key()
         tap.put()
