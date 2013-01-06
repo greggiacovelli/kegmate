@@ -1,5 +1,5 @@
 from google.appengine.ext import db
-
+from models import kegs
 class Tap(db.Model):
     '''A Tap is a physical beer tap installation somewhere. Basically it thought of
     as the place you have a beer. Each Tap can have a keg installed. This keg contains
@@ -10,4 +10,4 @@ class Tap(db.Model):
     photo_url = db.LinkProperty()
     time_created = db.DateTimeProperty(auto_now_add=True)
     time_modified = db.DateTimeProperty(auto_now=True)
-    keg = db.ReferenceProperty(reference_class=Keg)
+    keg = db.ReferenceProperty(reference_class=kegs.Keg)

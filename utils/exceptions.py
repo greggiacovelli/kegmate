@@ -22,7 +22,23 @@ class KegMateException(webob.exc.WSGIHTTPException):
        self.body = json.json.dumps({'meta': payload})
 
        
+class InvalidParameterException(KegMateException):
 
+    meta_code = 401
+    message = 'One of the passed parameters is invalid'
+
+    def __init__(self, description=None, param=None, value=None):
+       self.__description = description
+       self.__param = param
+       self.__value = value
+       KegMateException.__init__(self)
+
+    def update_payload(self, payload):
+       payload['value'] = self.__value
+       payload['param'] = self.__param
+       payload['descritpion'] = self.__description
+
+  
 class MissingParamException(KegMateException):
 
     meta_code = 400

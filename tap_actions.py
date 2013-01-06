@@ -1,6 +1,6 @@
 import webapp2
 import webapp2_extras.routes as routes
-from taps_actions import taps
+from taps import taps
 
 class Catch(webapp2.RequestHandler):
    def get(this):

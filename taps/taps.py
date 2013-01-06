@@ -3,9 +3,10 @@ import webapp2
 import webob.exc
 from webapp2_extras import json
 from models import taps
+from models import kegs
 from utils import funcs
 from utils.decorators import require
-from utils.exceptions import Conflict
+from utils.exceptions import Conflict, InvalidParameterException
 
 class TapInfo(webapp2.RequestHandler):
 
@@ -24,11 +25,21 @@ class TapInfo(webapp2.RequestHandler):
             }
          ))
 
+    @db.transactional
     def post(self, tap_id):
         tap = self.get_tap_or_bust(tap_id)
         tap.geo_location.latitude = self.request.params.get('latitude', tap.geo_location.latitude)
         tap.geo_location.longitude = self.request.params.get('longitude', tap.geo_location.longitude)
         tap.photo_url = self.request.params.get('photo_url', tap.photo_url)
+        keg_id = self.request.params.get('keg')
+        if keg_id:
+            keg = keg.get_by_key_name(keg_id)
+            if not keg:
+                raise InvalidParameterException(parameter='keg', value=keg_id, description='The given keg could not be located')
+            if keg.empty():
+                raise InvalidParameterException(parameter='keg', value=keg_id, description='The given keg is reported empty')
+            keg.put()
+            tap.keg = keg.key()
         tap.put()
         webapp2.redirect_to('tap', tap_id=tap_id)
 

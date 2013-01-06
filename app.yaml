@@ -10,16 +10,16 @@ handlers:
   upload: favicon\.ico
 
 - url: /user/.*
-  script: user.app
+  script: user_actions.app
 
 - url: /beer/.*
-  script: beer.app
+  script: beer_actions.app
 
 - url: /taps/.*
-  script: taps.app
+  script: tap_actions.app
 
 - url: /tap/.*
-  script: taps.app
+  script: tap_actions.app
 
 libraries:
 - name: webapp2
