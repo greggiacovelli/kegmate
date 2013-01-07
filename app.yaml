@@ -12,14 +12,15 @@ handlers:
 - url: /user/.*
   script: actions.user.app
 
-- url: /beer/.*
+- url: /beers?(/.*)*
   script: actions.beer.app
 
-- url: /taps/.*
+- url: /kegs?(/.*)*
+  script: actions.keg.app
+
+- url: /taps?(/.*)*
   script: actions.tap.app
 
-- url: /tap/.*
-  script: actions.tap.app
 
 libraries:
 - name: webapp2
