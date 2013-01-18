@@ -65,9 +65,9 @@ class KegList(webapp2.RequestHandler):
        data['meta'] = funcs.meta_ok()
        self.response.write(json.json.dumps(data))
 
-    @require(params=['name', 'latitude', 'longitude'])
+    @require(params=['beer', 'capacity'])
     def post(self):
-       name = self.request.params['name']
+       beer_id = self.request.params['beer']
        if kegs.Keg.get_by_key_name(name):
           raise Conflict(name, webapp2.uri_for('keg', keg_id=name))
        latitude = self.request.params['latitude']

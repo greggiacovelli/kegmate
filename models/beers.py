@@ -7,7 +7,7 @@ class Beer(db.Expando):
     '''
     name = db.StringProperty(required=True)
     style = db.StringProperty(required=True)
-    abv = db.DecimalProperty(required=True)
+    abv = db.FloatProperty(required=True)
     description = db.StringProperty(required=True)
     brewery = db.StringProperty(required=True)
     vintage = db.IntegerProperty()
