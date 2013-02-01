@@ -2,8 +2,7 @@ from google.appengine.ext import db
 import webapp2
 import webob.exc
 from webapp2_extras import json
-from models import taps
-from models import kegs
+from models import Keg, Tap
 from utils import funcs
 from utils.decorators import require
 from utils.exceptions import Conflict, InvalidParameterException
@@ -11,9 +10,9 @@ from utils.exceptions import Conflict, InvalidParameterException
 class TapInfo(webapp2.RequestHandler):
 
     def get_tap_or_bust(self, tap_id):
-        tap = taps.Tap.get_by_key_name(tap_id)
+        tap = Tap.get_by_key_name(tap_id)
         if not tap:
-           tap = taps.Tap.get(tap_id)
+           tap = Tap.get(tap_id)
         if not tap:
            raise webob.exc.HTTPNotFound()
         return tap
@@ -32,7 +31,7 @@ class TapInfo(webapp2.RequestHandler):
         tap.photo_url = self.request.params.get('photo_url', tap.photo_url)
         keg_id = self.request.params.get('keg')
         if keg_id:
-            keg = kegs.Keg.get_by_key_name(keg_id)
+            keg = Keg.get_by_key_name(keg_id)
             if not keg:
                 raise InvalidParameterException(param='keg', value=keg_id, description='The given keg could not be located')
             if keg.empty():
@@ -52,7 +51,7 @@ class TapList(webapp2.RequestHandler):
        full = self.request.GET.get('full', False)
        limit = self.request.params.get('limit', 20)
        offset = self.request.params.get('offset', 0)
-       all_taps = taps.Tap.all(keys_only=not full)
+       all_taps = Tap.all(keys_only=not full)
        total = all_taps.count(read_policy=db.EVENTUAL_CONSISTENCY, deadline=5)
        payload = [a_tap for a_tap in all_taps.run(offset=offset, limit=min(limit, total))]
        if not payload:
@@ -68,10 +67,10 @@ class TapList(webapp2.RequestHandler):
     @require(params=['name', 'latitude', 'longitude'])
     def post(self):
        name = self.request.params['name']
-       if taps.Tap.get_by_key_name(name):
+       if Tap.get_by_key_name(name):
           raise Conflict(name, webapp2.uri_for('tap', tap_id=name))
        latitude = self.request.params['latitude']
        longitude = self.request.params['longitude']
-       a_tap = taps.Tap(key_name=name, geo_location=db.GeoPt(latitude, longitude))
+       a_tap = Tap(key_name=name, geo_location=db.GeoPt(latitude, longitude))
        a_tap.put()
        webapp2.redirect_to('tap', tap_id=name)

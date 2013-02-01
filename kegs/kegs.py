@@ -2,8 +2,7 @@ from google.appengine.ext import db
 import webapp2
 import webob.exc
 from webapp2_extras import json
-from models import kegs
-from models import kegs
+from models import Keg
 from utils import funcs
 from utils.decorators import require
 from utils.exceptions import Conflict, InvalidParameterException
@@ -11,9 +10,9 @@ from utils.exceptions import Conflict, InvalidParameterException
 class KegInfo(webapp2.RequestHandler):
 
     def get_keg_or_bust(self, keg_id):
-        keg = kegs.Keg.get_by_key_name(keg_id)
+        keg = Keg.get_by_key_name(keg_id)
         if not keg:
-           keg = kegs.Keg.get(keg_id)
+           keg = Keg.get(keg_id)
         if not keg:
            raise webob.exc.HTTPNotFound()
         return keg
@@ -32,7 +31,7 @@ class KegInfo(webapp2.RequestHandler):
         keg.photo_url = self.request.params.get('photo_url', keg.photo_url)
         keg_id = self.request.params.get('keg')
         if keg_id:
-            keg = kegs.Keg.get_by_key_name(keg_id)
+            keg = Keg.get_by_key_name(keg_id)
             if not keg:
                 raise InvalidParameterException(param='keg', value=keg_id, description='The given keg could not be located')
             if keg.empty():
@@ -52,7 +51,7 @@ class KegList(webapp2.RequestHandler):
        full = self.request.GET.get('full', False)
        limit = self.request.params.get('limit', 20)
        offset = self.request.params.get('offset', 0)
-       all_kegs = kegs.Keg.all(keys_only=not full)
+       all_kegs = Keg.all(keys_only=not full)
        total = all_kegs.count(read_policy=db.EVENTUAL_CONSISTENCY, deadline=5)
        payload = [a_keg for a_keg in all_kegs.run(offset=offset, limit=min(limit, total))]
        if not payload:
@@ -68,10 +67,10 @@ class KegList(webapp2.RequestHandler):
     @require(params=['beer', 'capacity'])
     def post(self):
        beer_id = self.request.params['beer']
-       if kegs.Keg.get_by_key_name(name):
+       if Keg.get_by_key_name(name):
           raise Conflict(name, webapp2.uri_for('keg', keg_id=name))
        latitude = self.request.params['latitude']
        longitude = self.request.params['longitude']
-       a_keg = kegs.Keg(key_name=name, geo_location=db.GeoPt(latitude, longitude))
+       a_keg = Keg(key_name=name, geo_location=db.GeoPt(latitude, longitude))
        a_keg.put()
        webapp2.redirect_to('keg', keg_id=name)
