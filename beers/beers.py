@@ -30,8 +30,10 @@ class BeerInfo(webapp2.RequestHandler):
         beer.description = self.request.params.get('description', beer.description)
         beer.photo_url = self.request.params.get('photo_url', beer.photo_url)
         beer.style = self.request.params.get('style', beer.style)
-        beer.abv = self.request.params.get('abv', beer.abv)
-        beer.vintage = self.request.params.get('vintage', beer.vintage)
+        if 'abv' in self.request.params:
+           beer.abv = float(self.request.get('abv'))
+        if 'vintage' in self.request.params:
+           beer.vintage = int(self.request.get('vintage'))
         if 'house_rating' in self.request.params and 'force' in self.request.GET:
             beer.house_rating = self.request.params['house_rating']
         beer.put()
