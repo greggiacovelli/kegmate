@@ -74,3 +74,9 @@ class TapList(webapp2.RequestHandler):
        a_tap = Tap(key_name=name, geo_location=db.GeoPt(latitude, longitude))
        a_tap.put()
        webapp2.redirect_to('tap', tap_id=name)
+
+class PourTap(webapp2.RequestHandler):
+
+   @require(params=['user_id', 'volume'])
+   def post(self, tap_id):
+      return
