@@ -63,11 +63,13 @@ class BeerList(webapp2.RequestHandler):
        style = self.request.params['style']
        abv = float(self.request.params['abv'])
        brewery = self.request.params['brewery']
-       vintage = self.request.get('vintage', None)
-       photo_url = self.request.get('photo_url', None)
        if Beer.get_by_key_name(name):
           raise Conflict(name, webapp2.uri_for('beer', beer_id=name))
        new_beer = Beer(key_name=name, style=style, abv=abv, description=description,
-				brewery=brewery, vintage=vintage, photo_url=photo_url)
+				brewery=brewery)
+       if 'vintage' in self.request.params:
+          new_beer.vintage = int(self.request.get('vintage'))
+       if 'photo_url' in self.request.params:
+          new_beer.photo_url = photo_url
        new_beer.put()
        webapp2.redirect_to('beer', beer_id=name)
